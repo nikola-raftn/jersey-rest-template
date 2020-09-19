@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+
+       <!-- Vue.js script -->
+   <script src="https://unpkg.com/vue"></script>
+
+</head>
+<body>
+    <div style="padding: 10px; width: 100%;">
+        <p style="margin: 0 auto; width: fit-content;"> Ovo je spisak placanja </p>
+        <div id="vue" style="width: 100%;">
+            <table style="border:1px solid lightgray; width: 50%; margin: 0 auto; margin-top: 100px;">
+                <tbody>
+                    <th>Rb</th>
+                    <th>Ime i prezime</th>
+                    <th>Br racuna</th>
+                    <th>Datum placanja</th>
+                    <th>Iznos</th>
+                    <tr v-for="(payment, index) in payments" :key="payment.key"
+                        style="background-color: rgb(228, 228, 228); border: 1px solid rgb(194, 194, 194);">
+                        <td style="padding-top: 5px; padding-bottom: 5px; padding-right: 10px; padding-left: 10px;">
+                            {{payment.key}}
+                        </td>
+                        <td style="padding-top: 5px; padding-bottom: 5px; padding-right: 10px; padding-left: 10px;">
+                            {{payment.name}}
+                        </td>
+                        <td style="padding-top: 5px; padding-bottom: 5px; padding-right: 10px; padding-left: 10px;">
+                            {{payment.bankAccountNumber}}
+                        </td>
+                        <td style="padding-top: 5px; padding-bottom: 5px; padding-right: 10px; padding-left: 10px;">
+                            {{payment.date}}
+                        </td>
+                        <td style="padding-top: 5px; padding-bottom: 5px; padding-right: 10px; padding-left: 10px;">
+                            {{payment.sum}} RSD
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin: 0 auto; margin-top: 50px; width: fit-content;">
+                <div style="float: left;">
+                    Iznos od: 
+                    <input type="number" v-model="min">
+                </div>
+                <div style="float: left;">
+                    Iznos do: 
+                    <input type="number" v-model="max">
+                </div>
+                <div style="float:left;">
+                    <button @click="filter">Filtiraj</button>
+                </div>
+            </div>
+            <div style="margin: 0 auto; margin-top: 30px;">
+                {{message}}
+            </div>
+        </div>
+    </div>
+
+    <!-- Axios -->
+   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+   <script>
+       let vue = new Vue({
+            el : "#vue",
+            data : {
+                payments : [],
+                min : "",
+                max : "",
+                message : ""
+            }, 
+            methods : {
+                getPayments() {
+                    axios.get("/EliminacioniREST/rest/data/payments")
+                        .then(response => {
+                            if (response.data) {
+                                Vue.set(vue, "payments", response.data);
+                            }
+                        })
+                        .catch(error => {
+                            vue.message = error.data
+                        })
+                },
+                filter() {
+                    if (!vue.min  &&  !vue.max) {
+                        vue.message = "Morate uneti bar jedan kriterijum za filtiranje."
+                        return;
+                    }
+                    if (parseInt(vue.min) > parseInt(vue.max)  &&  vue.min && vue.max) {
+                        vue.message = "Minimalna vrednost mora biti manja od maksimalne"
+                        return;
+                    }
+                    if (vue.min == vue.max &&  vue.min && vue.max) {
+                        vue.message = "Vrednosti ne smeju biti iste"
+                        return;
+                    }
+                    if (parseInt(vue.min) < 0  ||  parseInt(vue.max) < 0) {
+                        vue.message = "Vrednosti ne smeju biti negativne"
+                        return;
+                    }
+
+                    vue.message = ""
+                    let wrapper = {
+                        min : vue.min,
+                        max : vue.max
+                    }
+                    axios.post("/EliminacioniREST/rest/data/payments/filter", wrapper)
+                        .then(response => {
+                            if (response.data) {
+                                if (response.data.length == 0) {
+                                    vue.message = "Ne postoji nijedno placanje za ovaj cenovni opseg"
+                                    return;
+                                }
+                                let cntr = 1
+                                Array.prototype.forEach.call(response.data, payment => {
+                                    payment.key = cntr++
+                                })
+                                Vue.set(vue, "payments", response.data)
+                            }
+                            else {
+                                vue.message = "Ne postoji nijedno placanje za taj cenovni opseg."
+                            }
+                        })
+                        .catch(error => {
+                            vue.message = error.data
+                        })
+                }
+            },
+            beforeMount() {
+                this.getPayments()
+            }
+       })
+   </script>
+</body>
+</html>
