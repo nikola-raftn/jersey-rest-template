@@ -5,7 +5,6 @@ import java.util.Map;
 import com.google.gson.*;
 
 import beans.Entity;
-import beans.model.template.DatabaseEntity;
 
 import com.google.common.reflect.TypeParameter;
 import com.google.common.reflect.TypeToken;
