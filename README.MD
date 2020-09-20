@@ -1,2 +1,1 @@
-Putanja do servise poèinje sa /rest
-Servise stavljati u "services" paket
+Small library for creating web apps using Jersey JAX-RS implementation. 
