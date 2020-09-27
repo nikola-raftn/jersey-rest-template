@@ -9,9 +9,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import util.HtmlService;
-import util.HttpResponseHandler;
-import util.SessionTracker;
+import services.file.HtmlService;
+import session.HttpResponseHandler;
+import session.SessionTracker;
+
 
 @Path("/")
 public class PageNavigationService implements SessionTracker, HttpResponseHandler {
@@ -19,11 +20,11 @@ public class PageNavigationService implements SessionTracker, HttpResponseHandle
 	@GET
 	@Produces(MediaType.TEXT_HTML)
 	public Response getLandingPage(@Context HttpServletRequest request) {
-		return OK(HtmlService.getInstance().getPage("index.html"));
+		return OK(HtmlService.getInstance().get("index.html"));
 	}
 	
 	@GET
-	@Path("{pagePath}")
+	@Path("/{pagePath}")
 	@Produces(MediaType.TEXT_HTML)
 	public Response getSubpage(@PathParam("pagePath") String pagePath, @Context HttpServletRequest request) {
 		return OK("Page missing.");

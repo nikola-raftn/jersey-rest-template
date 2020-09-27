@@ -1,7 +1,8 @@
-package util;
+package session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
 
 /** Interface to provide full range Session handling. Includes
  *  creating, deleting and reading sessions.
@@ -17,9 +18,9 @@ public interface SessionHandler extends SessionTracker {
 	}
 	
 	/** Attach the SessionToken object to the current session */
-	public default void createSession(SessionToken obj, HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		session.setAttribute("session", obj);
+	public default void createSession(Session session, HttpServletRequest request) {
+		HttpSession httpSession = request.getSession();
+		httpSession.setAttribute("session", session);
 	}
 }
 
